@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
+// src/components/Sidebar.js
+import React from 'react';
 
-function Sidebar({ 
-  currentUser, 
-  onLogout, 
-  activeSection, 
-  onSectionChange, 
-  chats, 
-  selectedChat, 
-  onSelectChat 
+function Sidebar({
+  currentUser,
+  onLogout,
+  activeSection,
+  onSectionChange,
+  isVisible = true
 }) {
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  // Фильтрация чатов по поисковому запросу
-  const filteredChats = chats.filter(chat => 
-    chat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Если боковая панель скрыта, возвращаем null
+  if (!isVisible) {
+    return null;
+  }
   
   return (
     <div className="sidebar">
@@ -29,7 +26,7 @@ function Sidebar({
       </div>
       
       <div className="sidebar-menu">
-        <div 
+        <div
           className={`menu-item ${activeSection === 'dashboard' ? 'active' : ''}`}
           onClick={() => onSectionChange('dashboard')}
         >
@@ -37,7 +34,7 @@ function Sidebar({
           <span>Дашборд</span>
         </div>
         
-        <div 
+        <div
           className={`menu-item ${activeSection === 'chats' ? 'active' : ''}`}
           onClick={() => onSectionChange('chats')}
         >
@@ -45,7 +42,7 @@ function Sidebar({
           <span>Чаты</span>
         </div>
         
-        <div 
+        <div
           className={`menu-item ${activeSection === 'users' ? 'active' : ''}`}
           onClick={() => onSectionChange('users')}
         >
@@ -53,7 +50,7 @@ function Sidebar({
           <span>Пользователи</span>
         </div>
         
-        <div 
+        <div
           className={`menu-item ${activeSection === 'settings' ? 'active' : ''}`}
           onClick={() => onSectionChange('settings')}
         >
@@ -61,48 +58,6 @@ function Sidebar({
           <span>Настройки</span>
         </div>
       </div>
-      
-      {activeSection === 'chats' && (
-        <div className="chats-container">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Поиск чата..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          
-          <div className="chats-list">
-            {filteredChats.length === 0 ? (
-              <div className="no-chats">Чаты не найдены</div>
-            ) : (
-              filteredChats.map(chat => (
-                <div
-                  key={chat.id}
-                  className={`chat-item ${selectedChat && selectedChat.id === chat.id ? 'active' : ''} ${chat.unread ? 'has-unread' : ''}`}
-                  onClick={() => onSelectChat(chat)}
-                >
-                  <div className="chat-avatar">
-                    {chat.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="chat-info">
-                    <div className="chat-name">{chat.name}</div>
-                    {chat.phoneNumber && (
-                      <div className="chat-phone">{chat.phoneNumber}</div>
-                    )}
-                  </div>
-                  {chat.unreadCount > 0 && (
-                    <div className={`unread-badge ${chat.unread ? 'new-message' : ''}`}>
-                      {chat.unreadCount}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
       
       <div className="sidebar-footer">
         <button className="logout-button" onClick={onLogout}>

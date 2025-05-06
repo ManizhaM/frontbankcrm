@@ -4,9 +4,11 @@ import './App.css';
 import LoginPage from './components/LoginPage';
 import Sidebar from './components/Sidebar';
 import ChatPanel from './components/ChatPanel';
+import ChatList from './components/ChatList';
 import Dashboard from './components/Dashboard';
 import SettingsPanel from './components/SettingsPanel';
 import UserManagement from './components/UserManagement';
+import Navbar from './components/Navbar';
 
 function App() {
   // Состояние авторизации и пользователя
@@ -15,7 +17,8 @@ function App() {
   
   // Состояние соединения SignalR
   const [connection, setConnection] = useState(null);
-  
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+
   // Данные приложения
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -143,6 +146,17 @@ function App() {
     }
   }, [isAuthenticated]);
   
+  useEffect(() => {
+    // Если выбран раздел чатов, скрываем боковую панель
+    if (activeSection === 'chats') {
+      setSidebarVisible(false);
+    } else {
+      // В других разделах показываем боковую панель
+      setSidebarVisible(true);
+    }
+  }, [activeSection]);
+
+
   // Функция для выполнения запросов с авторизацией
   const fetchWithAuth = async (url, options = {}) => {
     const token = localStorage.getItem('authToken');
@@ -360,13 +374,21 @@ function App() {
     switch (activeSection) {
       case 'chats':
         return (
-          <ChatPanel 
-            selectedChat={selectedChat}
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            currentUser={currentUser}
-            loading={isLoading}
-          />
+          <div className="chat-interface">
+            <ChatList 
+              chats={chats}
+              selectedChat={selectedChat}
+              onSelectChat={setSelectedChat}
+              loading={isLoading}
+            />
+            <ChatPanel 
+              selectedChat={selectedChat}
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              currentUser={currentUser}
+              loading={isLoading}
+            />
+          </div>
         );
       case 'dashboard':
         return <Dashboard />;
@@ -388,15 +410,20 @@ function App() {
         </div>
       )}
       
-      <div className="main-layout">
+      <Navbar 
+        currentUser={currentUser}
+        sidebarVisible={sidebarVisible}
+        setSidebarVisible={setSidebarVisible}
+        selectedChat={selectedChat}
+      />
+      
+      <div className={`main-layout ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
         <Sidebar 
           currentUser={currentUser}
           onLogout={handleLogout}
           activeSection={activeSection}
           onSectionChange={handleSectionChange}
-          chats={chats}
-          selectedChat={selectedChat}
-          onSelectChat={setSelectedChat}
+          isVisible={sidebarVisible}
         />
         
         <div className="content-area">
@@ -405,6 +432,7 @@ function App() {
       </div>
     </div>
   );
+  
 }
 
 export default App;
